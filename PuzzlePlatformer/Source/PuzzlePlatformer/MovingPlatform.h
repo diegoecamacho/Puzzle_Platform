@@ -7,7 +7,7 @@
 #include "MovingPlatform.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class PUZZLEPLATFORMER_API AMovingPlatform : public AStaticMeshActor
@@ -15,21 +15,43 @@ class PUZZLEPLATFORMER_API AMovingPlatform : public AStaticMeshActor
 	GENERATED_BODY()
 
 public:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+		float Velocity = 10.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", Meta = (MakeEditWidget = true))
+		FVector TargetLocation;
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		bool ForceMove = false;
+
+	UPROPERTY(EditAnywhere,  Category = "Movement")
+		int ActiveTrigger = 0;
+
+	bool ForwardTravel = true;
+
+	float DeadZone = 5.f;
+
+	FVector GlobalStartLocation;
+
+	FVector GlobalTargetLocation;
+
+	FVector Direction;
+
+public:
+
 	AMovingPlatform();
+
+	void AddActiveTrigger();
+
+	void RemoveActiveTrigger();
+
+protected:
 
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	bool Move;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "Movement")
-	FVector Direction; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	FVector TargetLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite ,Category = "Movement")
-	float Velocity;
+	virtual void MovePlatform(float DeltaSeconds);
 };

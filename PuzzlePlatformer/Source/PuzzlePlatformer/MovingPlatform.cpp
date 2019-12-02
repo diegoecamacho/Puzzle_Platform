@@ -1,14 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MovingPlatform.h"
 #include <GameFramework/Actor.h>
 
 AMovingPlatform::AMovingPlatform()
 {
-	Move = true;
-	Direction = FVector(1, 0, 0);
-	Velocity = 1;
 	PrimaryActorTick.bCanEverTick = true;
 	SetMobility(EComponentMobility::Movable);
 }
@@ -17,22 +13,55 @@ void AMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(!HasAuthority()) return;
+	GlobalStartLocation = GetActorLocation();
+	GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
+
+	if (!HasAuthority()) return;
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
-	
 }
 
 void AMovingPlatform::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!Move) return;
+	if (!ForceMove) return;
+
 	if (!HasAuthority()) return;
-	
+
+	if (ActiveTrigger > 0 || ForceMove)
+	{
+		MovePlatform(DeltaSeconds);
+	}
+}
+
+void AMovingPlatform::MovePlatform(float DeltaSeconds)
+{
 	FVector Location = GetActorLocation();
-	Location += FVector(Direction.X * Velocity, Direction.Y * Velocity, Direction.Z * Velocity);
+
+	const FVector FromLocation = ForwardTravel ? GlobalStartLocation : GlobalTargetLocation;
+
+	const FVector ToLocation = ForwardTravel ? GlobalTargetLocation : GlobalStartLocation;
+
+	if (FVector::Dist(Location, ToLocation) < DeadZone)
+		ForwardTravel = !ForwardTravel;
+
+	Direction = (ToLocation - FromLocation).GetSafeNormal();
+
+	Location += Direction * Velocity * DeltaSeconds;
 
 	SetActorLocation(Location);
+}
+
+void AMovingPlatform::AddActiveTrigger()
+{
+	ActiveTrigger++;
+}
+
+void AMovingPlatform::RemoveActiveTrigger()
+{
+	if (ActiveTrigger <= 0) return;
+
+	ActiveTrigger--;
 }
