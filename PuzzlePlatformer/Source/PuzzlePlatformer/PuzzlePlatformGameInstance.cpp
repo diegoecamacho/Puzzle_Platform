@@ -5,13 +5,37 @@
 #include <Engine/Engine.h>
 #include <Engine/World.h>
 #include <GameFramework/PlayerController.h>
+#include <ConstructorHelpers.h>
+#include "PlatformTrigger.h"
+#include "MenuSystem/MainMenu.h"
+#include "MenuSystem/MenuWidget.h"
+
+UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance()
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> PlatformTriggerBP(TEXT("/Game/MenuSystem/WBP_MainMenu"));
+
+	if(!ensure(PlatformTriggerBP.Class != nullptr)) return;
+
+	MenuClass = PlatformTriggerBP.Class;
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> OverlayBP(TEXT("/Game/MenuSystem/WBP_Overlay"));
+
+	if (!ensure(OverlayBP.Class != nullptr)) return;
+
+	GameOverlayClass = OverlayBP.Class;
+
+	UE_LOG(LogTemp, Warning, TEXT("Class Found %s"), *MenuClass->GetName());
+
+}
 
 void UPuzzlePlatformGameInstance::Init()
 {
 	Super::Init();
+
 	UE_LOG(LogTemp, Warning, TEXT("Init Call"));
 	
 }
+
 
 void UPuzzlePlatformGameInstance::HostServer()
 {
@@ -43,7 +67,28 @@ void UPuzzlePlatformGameInstance::JoinServer(const FString& Address)
 	PlayerController->ClientTravel(*Address, ETravelType::TRAVEL_Absolute);
 }
 
-UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance()
+void UPuzzlePlatformGameInstance::LoadMenu()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Constructor Call"));
+	if(!ensure(MenuClass != nullptr)) return;
+
+	UMenuWidget* Menu = CreateWidget<UMenuWidget>(this, MenuClass);
+
+	if(!ensure(Menu != nullptr)) return;
+
+	Menu->Setup();
+
+	Menu->SetupMenuInterface(this);
+}
+
+void UPuzzlePlatformGameInstance::LoadInGameMenu()
+{
+	if (!ensure(MenuClass != nullptr)) return;
+
+	UMenuWidget* Menu = CreateWidget<UMenuWidget>(this, GameOverlayClass);
+
+	if (!ensure(Menu != nullptr)) return;
+
+	Menu->Setup();
+
+	Menu->SetupMenuInterface(this);
 }
