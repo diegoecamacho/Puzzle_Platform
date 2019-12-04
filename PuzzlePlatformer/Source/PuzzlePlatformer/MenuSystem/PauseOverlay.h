@@ -4,16 +4,33 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MenuWidget.h"
 #include "PauseOverlay.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PUZZLEPLATFORMER_API UPauseOverlay : public UUserWidget
+class PUZZLEPLATFORMER_API UPauseOverlay : public UMenuWidget
 {
 	GENERATED_BODY()
 
-		//class UButton* 
-	
+private:
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* CancelOverlayButton;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* QuitOverlayButton;
+
+public:
+
+	virtual bool Initialize() override;
+
+private:
+	UFUNCTION()
+	void OnCancelButtonClicked();
+
+	UFUNCTION()
+	void OnQuitButtonClicked();
 };

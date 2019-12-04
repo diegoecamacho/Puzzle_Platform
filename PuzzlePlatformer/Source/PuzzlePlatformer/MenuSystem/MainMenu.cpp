@@ -35,6 +35,10 @@ bool UMainMenu::InitializeButtonEvents()
 
 	JoinServerButton->OnClicked.AddDynamic(this, &UMainMenu::OnJoinPressed);
 
+	if (!ensure(QuitButton != nullptr)) return false;
+
+	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
+
 	return true;
 }
 
@@ -74,6 +78,18 @@ void UMainMenu::OnReturnButtonPressed()
 	if (!ensure(MenuSwitcher != nullptr)) return;
 
 	MenuSwitcher->SetActiveWidget(MainMenu);
+}
+
+
+void UMainMenu::QuitGame()
+{
+	APlayerController* PlayerController = GetOwningPlayer();
+	UE_LOG(LogTemp, Warning, TEXT("Quit Game"));
+
+	if(!ensure(PlayerController != nullptr)) return;
+
+
+	PlayerController->ConsoleCommand("quit");
 }
 
 #pragma endregion Events

@@ -20,6 +20,9 @@ private:
 	class UButton* HostButton;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* QuitButton;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* OpenJoinMenu;
 
 	UPROPERTY(meta = (BindWidget))
@@ -58,6 +61,8 @@ private:
 
 	UFUNCTION()
 	void OnReturnButtonPressed();
-
 	
+	UFUNCTION()
+	void QuitGame();
+public:
 };

@@ -34,10 +34,8 @@ void UMenuWidget::SetupMenuInterface(IMenuInterface* MenuInterface)
 	this->MenuInterface = MenuInterface;
 }
 
-void UMenuWidget::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
+void UMenuWidget::TearDown()
 {
-	Super::OnLevelRemovedFromWorld(InLevel, InWorld);
-
 	this->RemoveFromViewport();
 
 	APlayerController* PlayerController = this->GetOwningPlayer();
@@ -49,4 +47,11 @@ void UMenuWidget::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
 	FInputModeGameOnly InputMode;
 
 	PlayerController->SetInputMode(InputMode);
+}
+
+void UMenuWidget::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
+{
+	Super::OnLevelRemovedFromWorld(InLevel, InWorld);
+
+	TearDown();
 }

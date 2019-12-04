@@ -19,6 +19,10 @@ public:
 
 	virtual void SetupMenuInterface(class IMenuInterface* MenuInterface);
 
+	virtual void TearDown();
+
+
+
 protected:
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
 
