@@ -5,6 +5,12 @@
 #include <WidgetSwitcher.h>
 #include "MenuInterface.h"
 #include <EditableTextBox.h>
+#include <UserWidget.h>
+#include <ConstructorHelpers.h>
+#include <AssertionMacros.h>
+#include "ServerEntries.h"
+#include <ScrollBox.h>
+
 
 bool UMainMenu::Initialize()
 {
@@ -15,6 +21,35 @@ bool UMainMenu::Initialize()
 	Succesful = InitializeButtonEvents();
 
 	return Succesful;
+}
+
+UMainMenu::UMainMenu() : UMenuWidget()
+{
+	static ConstructorHelpers::FClassFinder<UUserWidget> ServerEntryBP(TEXT("/Game/MenuSystem/WBP_ServerEntry"));
+
+	if(!ensure(ServerEntryBP.Class != nullptr)) return;
+
+	ServerEntries = ServerEntryBP.Class;
+}
+
+void UMainMenu::SetServerList(const TArray<FString>& ServerList)
+{
+
+	ListScrollBox->ClearChildren();
+
+	uint32 Index = 0;
+	for (const FString& ServerName : ServerList )
+	{
+		UServerEntries* NewEntry = CreateWidget<UServerEntries>(this, ServerEntries);
+
+		NewEntry->SetServerIDText(ServerName);
+
+		NewEntry->SetParentMenu(this, Index);
+		Index++;
+
+		ListScrollBox->AddChild(NewEntry);
+	}
+
 }
 
 bool UMainMenu::InitializeButtonEvents()
@@ -39,7 +74,16 @@ bool UMainMenu::InitializeButtonEvents()
 
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGame);
 
+	if (!ensure(RefreshButton != nullptr)) return false;
+
+	RefreshButton->OnClicked.AddDynamic(this, &UMainMenu::RefreshList);
+
 	return true;
+}
+
+void UMainMenu::SelectIndex(uint32 Index)
+{
+	SelectedIndex = Index;
 }
 
 #pragma region Events
@@ -63,13 +107,10 @@ void UMainMenu::OpenJoinMenuPressed()
 
 void UMainMenu::OnJoinPressed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Join Server"));
-
-	if(!ensure(IPAddressField != nullptr)) return;
-
-	const FString Address = IPAddressField->GetText().ToString();
-
-	MenuInterface->JoinServer(Address);
+	if (SelectedIndex.IsSet() && MenuInterface != nullptr)
+	{
+		MenuInterface->JoinServer(SelectedIndex.GetValue());
+	}
 }
 
 void UMainMenu::OnReturnButtonPressed()
@@ -80,7 +121,6 @@ void UMainMenu::OnReturnButtonPressed()
 	MenuSwitcher->SetActiveWidget(MainMenu);
 }
 
-
 void UMainMenu::QuitGame()
 {
 	APlayerController* PlayerController = GetOwningPlayer();
@@ -90,6 +130,14 @@ void UMainMenu::QuitGame()
 
 
 	PlayerController->ConsoleCommand("quit");
+}
+
+void UMainMenu::RefreshList()
+{
+	if (MenuInterface != nullptr)
+	{
+		MenuInterface->RefreshServerList();
+	}
 }
 
 #pragma endregion Events

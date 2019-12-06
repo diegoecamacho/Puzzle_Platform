@@ -24,7 +24,9 @@ class PUZZLEPLATFORMER_API IMenuInterface
 public:
 	virtual void HostServer() = 0;
 
-	virtual void JoinServer(const FString& Address) = 0;
+	virtual void JoinServer(uint32 SearchResultIndex) = 0;
 
 	virtual void LoadMainMenu() = 0;
+
+	virtual void RefreshServerList() = 0;
 };

@@ -7,6 +7,7 @@
 #include <SubclassOf.h>
 #include "MenuSystem/MenuInterface.h"
 #include <OnlineSubsystem.h>
+#include <OnlineSessionInterface.h>
 #include "PuzzlePlatformGameInstance.generated.h"
 
 /**
@@ -23,6 +24,9 @@ public:
 
 	virtual void Init() override;
 
+	UFUNCTION(BlueprintCallable)
+	void RefreshServerList();
+
 	// Menu Functions
 	UFUNCTION(Exec, BlueprintCallable)
 	void LoadMenu();
@@ -38,7 +42,7 @@ public:
 	void HostServer();
 
 	UFUNCTION(Exec)
-	void JoinServer(const FString& Address);
+	void JoinServer(uint32 SearchResultIndex);
 
 private:
 	//Initialization
@@ -47,6 +51,9 @@ private:
 	//Session Events
 	void OnCreateSessionComplete(FName SessionName, bool Succesful);
 	void OnDestroySessionComplete(FName SessionName, bool Succesful);
+	void OnFindSessionsComplete(bool Succesful);
+
+	void OnJoinSessionComplete(FName Session, EOnJoinSessionCompleteResult::Type Result);
 
 	//Session Functions
 	void CreateSession();
@@ -55,13 +62,19 @@ private:
 
 	class UMenuWidget* ActiveMenu;
 
-	class IOnlineSubsystem* OnlineSubsystem;
+	class UPauseOverlay* InGameMenu;
+
+	class UMainMenu* MainMenu;
+
+	IOnlineSubsystem* OnlineSubsystem;
 
 	IOnlineSessionPtr SessionInterface;
 
+	TSharedPtr<class FOnlineSessionSearch>SessionSearch;
+
 	TSharedPtr<class FOnlineSessionSettings> SessionSettings;
 
-	TSubclassOf<class UUserWidget> MenuClass;
+	TSubclassOf<class UMainMenu> MenuClass;
 
-	TSubclassOf<class UUserWidget> GameOverlayClass;
+	TSubclassOf<class UPauseOverlay> GameOverlayClass;
 };

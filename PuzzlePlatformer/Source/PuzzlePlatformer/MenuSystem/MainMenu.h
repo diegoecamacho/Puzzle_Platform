@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MenuInterface.h"
 #include "MenuWidget.h"
+#include <SubclassOf.h>
 #include "MainMenu.generated.h"
 
 /**
@@ -29,10 +30,13 @@ private:
 	class UButton* JoinServerButton;
 
 	UPROPERTY(meta = (BindWidget))
+	class UButton* RefreshButton;
+
+	UPROPERTY(meta = (BindWidget))
 	class UButton* ReturnMenuButton;
 
 	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* IPAddressField;
+	class UScrollBox* ListScrollBox;
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
@@ -43,12 +47,23 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* JoinMenu;
 
+	TSubclassOf<class UUserWidget> ServerEntries;
+
+	TOptional<uint32> SelectedIndex;
+
+public:
+	UMainMenu();
+
+	virtual void SetServerList(const TArray<FString>& ServerList);
+
+	void SelectIndex(uint32 Index);
 
 protected:
 	virtual bool Initialize() override;
-private:
 
+private:
 	bool InitializeButtonEvents();
+
 
 	UFUNCTION()
 	void OnHostPressed();
@@ -64,5 +79,9 @@ private:
 	
 	UFUNCTION()
 	void QuitGame();
+
+	UFUNCTION()
+	void RefreshList();
+
 public:
 };
